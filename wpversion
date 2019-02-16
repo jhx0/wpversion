@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+from bs4 import BeautifulSoup
+import requests
+import sys
+
+def usage():
+	print("USAGE: {} URL".format(sys.argv[0]))
+	sys.exit(0)
+
+def error(err):
+	print("[!!] {}".format(err))
+	sys.exit(1)
+
+def getVersion():
+	try:
+		page = requests.get(sys.argv[1])
+		soup = BeautifulSoup(page.content, "html.parser")
+		tag = soup.findAll("meta", {"name" : "generator"})
+	except requests.exceptions.RequestException as e:
+		error(e)
+
+	if len(tag):
+		return tag[0]['content']
+		
+	return None
+
+def main():
+	if len(sys.argv) != 2:
+		usage()
+
+	res = getVersion()
+
+	if res is None:
+		error("Nothing found, exiting")
+	else:
+		print("[OK]: {}".format(res))
+	
+	return
+
+
+if __name__ == "__main__":
+	main()
+
+	sys.exit(0)
